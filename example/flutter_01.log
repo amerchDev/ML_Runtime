@@ -1,0 +1,115 @@
+Flutter crash report.
+Please report a bug at https://github.com/flutter/flutter/issues.
+
+## command
+
+flutter run
+
+## exception
+
+ProcessException: ProcessException: No such file or directory
+  Command: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome http://127.0.0.1:9101?uri=http%3A%2F%2F127.0.0.1%3A50434%2Futmtw3p2XHs%3D%2F
+
+```
+#0      _ProcessImpl._start (dart:io-patch/process_patch.dart:402:33)
+#1      Process.start (dart:io-patch/process_patch.dart:38:20)
+#2      Chrome._startProcess (package:browser_launcher/src/chrome.dart:156:26)
+#3      Chrome.start (package:browser_launcher/src/chrome.dart:148:18)
+#4      FlutterResidentDevtoolsHandler._launchDevToolsForDevices (package:flutter_tools/src/resident_devtools_handler.dart:188:24)
+#5      FlutterResidentDevtoolsHandler.launchDevToolsInBrowser (package:flutter_tools/src/resident_devtools_handler.dart:176:7)
+#6      TerminalHandler._commonTerminalInputHandler (package:flutter_tools/src/resident_runner.dart:1823:56)
+#7      TerminalHandler.processTerminalInput (package:flutter_tools/src/resident_runner.dart:1841:13)
+#8      _rootRunUnary (dart:async/zone.dart:1407:47)
+#9      _CustomZone.runUnary (dart:async/zone.dart:1308:19)
+#10     _CustomZone.runUnaryGuarded (dart:async/zone.dart:1217:7)
+#11     _BufferingStreamSubscription._sendData (dart:async/stream_impl.dart:365:11)
+#12     _BufferingStreamSubscription._add (dart:async/stream_impl.dart:297:7)
+#13     _SyncBroadcastStreamController._sendData (dart:async/broadcast_stream_controller.dart:377:25)
+#14     _BroadcastStreamController.add (dart:async/broadcast_stream_controller.dart:244:5)
+#15     _AsBroadcastStreamController.add (dart:async/broadcast_stream_controller.dart:474:11)
+#16     _rootRunUnary (dart:async/zone.dart:1407:47)
+#17     _CustomZone.runUnary (dart:async/zone.dart:1308:19)
+#18     _CustomZone.runUnaryGuarded (dart:async/zone.dart:1217:7)
+#19     _BufferingStreamSubscription._sendData (dart:async/stream_impl.dart:365:11)
+#20     _BufferingStreamSubscription._add (dart:async/stream_impl.dart:297:7)
+#21     _SinkTransformerStreamSubscription._add (dart:async/stream_transformers.dart:63:11)
+#22     _EventSinkWrapper.add (dart:async/stream_transformers.dart:13:11)
+#23     _StringAdapterSink.add (dart:convert/string_conversion.dart:228:11)
+#24     _StringAdapterSink.addSlice (dart:convert/string_conversion.dart:233:7)
+#25     _Utf8ConversionSink.addSlice (dart:convert/string_conversion.dart:307:20)
+#26     _ErrorHandlingAsciiDecoderSink.addSlice (dart:convert/ascii.dart:279:17)
+#27     _ErrorHandlingAsciiDecoderSink.add (dart:convert/ascii.dart:265:5)
+#28     _ConverterStreamEventSink.add (dart:convert/chunked_conversion.dart:69:18)
+#29     _SinkTransformerStreamSubscription._handleData (dart:async/stream_transformers.dart:111:24)
+#30     _rootRunUnary (dart:async/zone.dart:1407:47)
+#31     _CustomZone.runUnary (dart:async/zone.dart:1308:19)
+#32     _CustomZone.runUnaryGuarded (dart:async/zone.dart:1217:7)
+#33     _BufferingStreamSubscription._sendData (dart:async/stream_impl.dart:365:11)
+#34     _BufferingStreamSubscription._add (dart:async/stream_impl.dart:297:7)
+#35     _SyncStreamControllerDispatch._sendData (dart:async/stream_controller.dart:784:19)
+#36     _StreamController._add (dart:async/stream_controller.dart:658:7)
+#37     _StreamController.add (dart:async/stream_controller.dart:606:5)
+#38     _Socket._onData (dart:io-patch/socket_patch.dart:2449:41)
+#39     _rootRunUnary (dart:async/zone.dart:1415:13)
+#40     _CustomZone.runUnary (dart:async/zone.dart:1308:19)
+#41     _CustomZone.runUnaryGuarded (dart:async/zone.dart:1217:7)
+#42     _BufferingStreamSubscription._sendData (dart:async/stream_impl.dart:365:11)
+#43     _BufferingStreamSubscription._add (dart:async/stream_impl.dart:297:7)
+#44     _SyncStreamControllerDispatch._sendData (dart:async/stream_controller.dart:784:19)
+#45     _StreamController._add (dart:async/stream_controller.dart:658:7)
+#46     _StreamController.add (dart:async/stream_controller.dart:606:5)
+#47     new _RawSocket.<anonymous closure> (dart:io-patch/socket_patch.dart:1936:33)
+#48     _NativeSocket.issueReadEvent.issue (dart:io-patch/socket_patch.dart:1379:14)
+#49     _microtaskLoop (dart:async/schedule_microtask.dart:40:21)
+#50     _startMicrotaskLoop (dart:async/schedule_microtask.dart:49:5)
+#51     _runPendingImmediateCallback (dart:isolate-patch/isolate_patch.dart:118:13)
+#52     _RawReceivePort._handleMessage (dart:isolate-patch/isolate_patch.dart:185:5)
+```
+
+## flutter doctor
+
+```
+[32m[✓][39m Flutter (Channel stable, 3.22.2, on macOS 14.5 23F79 darwin-x64, locale en-US)
+    [32m•[39m Flutter version 3.22.2 on channel stable at /Users/ryanhirasaki/sdk/flutter
+    [32m•[39m Upstream repository https://github.com/flutter/flutter.git
+    [32m•[39m Framework revision 761747bfc5 (6 weeks ago), 2024-06-05 22:15:13 +0200
+    [32m•[39m Engine revision edd8546116
+    [32m•[39m Dart version 3.4.3
+    [32m•[39m DevTools version 2.34.3
+
+[31m[✗][39m Android toolchain - develop for Android devices
+    [31m✗[39m Unable to locate Android SDK.
+      Install Android Studio from: https://developer.android.com/studio/index.html
+      On first launch it will assist you in installing the Android SDK components.
+      (or visit https://flutter.dev/docs/get-started/install/macos#android-setup for detailed instructions).
+      If the Android SDK has been installed to a custom location, please use
+      `flutter config --android-sdk` to update to that location.
+
+
+[32m[✓][39m Xcode - develop for iOS and macOS (Xcode 15.4)
+    [32m•[39m Xcode at /Applications/Xcode.app/Contents/Developer
+    [32m•[39m Build 15F31d
+    [32m•[39m CocoaPods version 1.15.2
+
+[31m[✗][39m Chrome - develop for the web (Cannot find Chrome executable at /Applications/Google Chrome.app/Contents/MacOS/Google Chrome)
+    [33m![39m Cannot find Chrome. Try setting CHROME_EXECUTABLE to a Chrome executable.
+
+[33m[!][39m Android Studio (not installed)
+    [32m•[39m Android Studio not found; download from https://developer.android.com/studio/index.html
+      (or visit https://flutter.dev/docs/get-started/install/macos#android-setup for detailed instructions).
+
+[32m[✓][39m VS Code (version 1.91.1)
+    [32m•[39m VS Code at /Applications/Visual Studio Code.app/Contents
+    [32m•[39m Flutter extension version 3.92.0
+
+[32m[✓][39m Connected device (2 available)
+    [32m•[39m iPhone (mobile) • 00008130-000A2DA12646001C • ios        • iOS 17.5.1 21F90
+    [32m•[39m macOS (desktop) • macos                     • darwin-x64 • macOS 14.5 23F79 darwin-x64
+    [33m![39m Error: Browsing on the local area network for Ryan’s iPhone. Ensure the device is unlocked and attached with a cable or associated with the same local area network as this Mac.
+      The device must be opted into Developer Mode to connect wirelessly. (code -27)
+
+[32m[✓][39m Network resources
+    [32m•[39m All expected network resources are available.
+
+[33m![39m Doctor found issues in 3 categories.
+```
