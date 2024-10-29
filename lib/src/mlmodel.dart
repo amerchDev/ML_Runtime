@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:mlruntime/mlruntime.dart';
 
@@ -14,6 +15,22 @@ class MLModel {
   static Future<MLModel?> fromBundle(
       AssetBundle bundle, String assetKey, MLModelConfiguration config) async {
     var package = await MLPackageManifest.loadFromBundle(bundle, assetKey);
+    if (package == null) {
+      return null;
+    }
+    final model =
+        await _loadModelURLAndConfiguration(package.model.toNSURL(), config);
+
+    package.dispose();
+    if (model == null) {
+      return null;
+    }
+    return MLModel.native(model);
+  }
+
+  static Future<MLModel?> fromFile(
+      File file, MLModelConfiguration config) async {
+    var package = await MLPackageManifest.loadFromFile(file);
     if (package == null) {
       return null;
     }

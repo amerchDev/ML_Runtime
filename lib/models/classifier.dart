@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/services.dart';
@@ -19,6 +20,16 @@ final class Classifier {
       {MLComputeUnits computeUnits = MLComputeUnits.MLComputeUnitsAll}) async {
     final config = MLModelConfiguration(computeUnits: computeUnits);
     final model = await MLModel.fromBundle(bundle, assetKey, config);
+    if (model != null) {
+      return Classifier._(model);
+    }
+    return null;
+  }
+
+  static Future<Classifier?> loadFile(File file,
+      {MLComputeUnits computeUnits = MLComputeUnits.MLComputeUnitsAll}) async {
+    final config = MLModelConfiguration(computeUnits: computeUnits);
+    final model = await MLModel.fromFile(file, config);
     if (model != null) {
       return Classifier._(model);
     }

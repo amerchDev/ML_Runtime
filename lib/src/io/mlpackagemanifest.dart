@@ -12,6 +12,32 @@ final class MLPackageManifest {
   final Map<String, dynamic> manifest_;
   const MLPackageManifest._(this.tmpDir, this.baseDir, this.manifest_);
 
+  static Future<MLPackageManifest?> loadFromFile(File file) async {
+    var tmpDir = await getTemporaryDirectory();
+    var baseDir = await file.readAsBytes().then((Uint8List data) async {
+      final ifs = InputStream(data);
+      final ArchiveType type;
+      if (file.path.endsWith(".zip")) {
+        type = ArchiveType.zip;
+      } else if (file.path.endsWith(".tar")) {
+        type = ArchiveType.tar;
+      } else if (file.path.endsWith(".tar.gz") || file.path.endsWith(".tgz")) {
+        type = ArchiveType.tgz;
+      } else if (file.path.endsWith(".tar.xz") || file.path.endsWith(".txz")) {
+        type = ArchiveType.txz;
+      } else {
+        throw UnimplementedError();
+      }
+      final baseDir = await extractArchive(type, ifs, tmpDir);
+      assert(await baseDir.exists());
+      return baseDir;
+    });
+
+    final manifestFile_ = File("${baseDir.path}/Manifest.json");
+    final manifest_ = jsonDecode(await manifestFile_.readAsString());
+    return MLPackageManifest._(tmpDir, baseDir, manifest_);
+  }
+
   static Future<MLPackageManifest?> loadFromBundle(
       AssetBundle bundle, String key) async {
     var tmpDir = await getTemporaryDirectory();

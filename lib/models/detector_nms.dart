@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/services.dart';
 import 'package:mlruntime/binding/coreml.dart' as binding;
 import 'package:objective_c/objective_c.dart' as objc;
@@ -27,6 +29,16 @@ final class DetectorNMS {
       {MLComputeUnits computeUnits = MLComputeUnits.MLComputeUnitsAll}) async {
     final config = MLModelConfiguration(computeUnits: computeUnits);
     final model = await MLModel.fromBundle(bundle, assetKey, config);
+    if (model != null) {
+      return DetectorNMS._(model);
+    }
+    return null;
+  }
+
+  static Future<DetectorNMS?> loadFile(File file,
+      {MLComputeUnits computeUnits = MLComputeUnits.MLComputeUnitsAll}) async {
+    final config = MLModelConfiguration(computeUnits: computeUnits);
+    final model = await MLModel.fromFile(file, config);
     if (model != null) {
       return DetectorNMS._(model);
     }
