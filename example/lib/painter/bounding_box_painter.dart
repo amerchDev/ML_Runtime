@@ -22,22 +22,20 @@ extension _RectExtension on Rect {
 class ObjectDetectorPainter extends CustomPainter {
   static const borderColorTall = Color.fromARGB(255, 209, 0, 216);
   static const borderColorWide = Color.fromARGB(255, 0, 169, 236);
-  ObjectDetectorPainter(this.objects, this.showClassLabels);
+  ObjectDetectorPainter(this.objects, this.showClassLabels, {this.repainter});
 
   final Iterable<DetectedObject> objects;
   final bool showClassLabels;
+  final Paint? Function(DetectedObject object)? repainter;
 
   @override
   void paint(Canvas canvas, Size size) {
     final Paint background = Paint()..color = const Color(0x99000000);
-    final Paint borderWide = Paint()
+    final Paint borderCustom = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0
-      ..color = borderColorWide;
-    final Paint borderTall = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0
-      ..color = borderColorTall;
+      ..strokeWidth = 3.0;
+    final Paint borderWide = borderCustom..color = borderColorWide;
+    final Paint borderTall = borderCustom..color = borderColorTall;
     final ParagraphBuilder legendBuilder = ParagraphBuilder(
       ParagraphStyle(
           textAlign: TextAlign.left,
@@ -78,11 +76,22 @@ class ObjectDetectorPainter extends CustomPainter {
       final Rect bbox = detectedObject.box.scale(size).clamp(size);
       final aspect = bbox.width / bbox.height;
 
-      if (aspect > 1.0) {
-        canvas.drawRect(bbox, borderWide);
-      } else {
-        canvas.drawRect(bbox, borderTall);
+      Paint? border;
+      if (repainter != null) {
+        final paint = repainter!(detectedObject);
+        if (paint != null) {
+          border = paint;
+        }
       }
+
+      if (border == null) {
+        if (aspect > 1.0) {
+          border = borderWide;
+        } else {
+          border = borderTall;
+        }
+      }
+      canvas.drawRect(bbox, border);
 
       canvas.drawParagraph(
         builder.build()
