@@ -1,5 +1,4 @@
 import 'dart:ui' as ui;
-import 'dart:math' as math;
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +10,9 @@ import 'package:mlruntime_example/main.dart';
 import 'package:mlruntime_example/math/linear.dart' as linear;
 
 import 'package:mlruntime_example/painter/bounding_box_painter.dart';
-import 'package:mlruntime_example/painter/line_painter.dart';
 import 'package:mlruntime_example/painter/multiline_painter.dart';
+
+import 'utils/tagsearch.dart';
 
 class DetectorShelfView extends StatefulWidget {
   const DetectorShelfView(this.assetKey, {super.key});
@@ -133,7 +133,6 @@ class _DetectionWidget extends State<DetectionWidget> {
 
   int inferTime = 0;
   RangeValues aspectThreshold = const RangeValues(1 / 1.5, 1.5);
-  bool enableAspectThreshold = true;
   bool enableClassLabel = false;
 
   bool controlLocked = true;
@@ -151,33 +150,6 @@ class _DetectionWidget extends State<DetectionWidget> {
         data: sliderTheme,
         child: child,
       );
-    }
-
-    optionalRangedSlider(
-        {required bool enabled,
-        required RangeValues values,
-        required void Function(bool)? onEnableChanged,
-        required void Function(RangeValues)? onValueChanged,
-        onValueChangedEnd}) {
-      return Row(children: [
-        Switch(
-          value: enabled,
-          onChanged: onEnableChanged,
-        ),
-        Expanded(
-          child: makeSlider(
-            child: RangeSlider(
-              values: values,
-              labels: RangeLabels(values.start.toStringAsFixed(2),
-                  values.end.toStringAsFixed(2)),
-              min: 1 / 3.0,
-              max: 3.0,
-              onChanged: enabled ? onValueChanged : null,
-              onChangeEnd: onValueChangedEnd,
-            ),
-          ),
-        ),
-      ]);
     }
 
     lockableSlider(BuildContext context,
@@ -260,20 +232,6 @@ class _DetectionWidget extends State<DetectionWidget> {
               child: IntrinsicWidth(
                 child: Column(
                   children: [
-                    optionalRangedSlider(
-                      enabled: enableAspectThreshold,
-                      values: aspectThreshold,
-                      onEnableChanged: controlLocked
-                          ? null
-                          : (value) => setState(() {
-                                enableAspectThreshold = value;
-                              }),
-                      onValueChanged: controlLocked
-                          ? null
-                          : (value) => setState(() {
-                                aspectThreshold = value;
-                              }),
-                    ),
                     lockableSlider(
                       context,
                       value: widget.detector?.confidenceThreshold ?? 0.01,
@@ -318,33 +276,9 @@ class _DetectionWidget extends State<DetectionWidget> {
     }
   }
 
-  List<List<mlruntime.DetectedObject>> binnedObjects(
-      List<mlruntime.DetectedObject> objects,
-      {int numBins = 10,
-      required String expectedLabel}) {
-    List<List<mlruntime.DetectedObject>> bins = [];
-
-    // Initialize bins
-    for (int i = 0; i < numBins; i++) {
-      bins.add([]);
-    }
-
-    final double step = 1.0 / numBins;
-
-    for (int i = 0; i < numBins; i++) {
-      final double low = step * i;
-      final double high = step * (i + 1);
-      for (var object in objects) {
-        if (object.classLabel != expectedLabel) continue;
-        if (object.box.center.dy >= low && object.box.center.dy < high) {
-          bins[i].add(object);
-        }
-      }
-    }
-    return bins;
-  }
-
   Future<void> onFrame(mlruntime.Image image) async {
+    const int numBins = 7;
+    const bool drawBins = false;
     if (widget.detector == null) {
       return;
     }
@@ -367,8 +301,6 @@ class _DetectionWidget extends State<DetectionWidget> {
     scaleX *= image.width.toDouble() / targetWidth.toDouble();
     scaleY *= image.height.toDouble() / targetHeight.toDouble();
 
-    // faker = await tensor.intoUiImage(width: 128, height: 128);
-    // print("$scaleX $scaleY");
     modelSize =
         "${targetWidth}x$targetHeight (${(scaleX * targetWidth).toInt()}x${(scaleY * targetHeight).toInt()})";
     var stopwatch = Stopwatch();
@@ -377,14 +309,6 @@ class _DetectionWidget extends State<DetectionWidget> {
         await widget.detector!.predictFromImage(tensor);
     stopwatch.stop();
 
-    results = results.where((object) {
-      if (enableAspectThreshold) {
-        final aspect = object.box.width / object.box.height;
-        return aspect >= aspectThreshold.start && aspect <= aspectThreshold.end;
-      } else {
-        return true;
-      }
-    });
     results = results.map((value) {
       final bbox = Rect.fromLTRB(
           value.box.left / scaleX,
@@ -397,40 +321,9 @@ class _DetectionWidget extends State<DetectionWidget> {
     final resultsList = results.toList();
 
     final bins =
-        binnedObjects(resultsList, expectedLabel: "price_tag", numBins: 10)
+        binnedObjects(resultsList, expectedLabel: "price_tag", numBins: numBins)
             .where((obj) => obj.isNotEmpty)
             .toList();
-
-    final tagPoints = resultsList
-        .where((obj) => obj.classLabel == "price_tag")
-        .map((obj) => obj.box.center)
-        .toList();
-    // final tagLines = houghTransform(tagPoints, rhoResolution: 20);
-    // var lines = tagLines.map((data) {
-    //   var (r, theta) = data;
-
-    //   final s = math.sin(theta);
-    //   final c = math.cos(theta);
-
-    //   // when x = 0
-    //   // y = r / sin
-
-    //   // when x = 1
-    //   // r = cos(theta) + y * sin(theta)
-    //   // r - cos(theta) = y * sin(theta)
-    //   // y = r / sin(theta) - cos(theta)/sin(theta)
-
-    //   return (Offset(0, (r / s)), Offset(1, (r / s) - (c / s)));
-
-    //   // final sin = math.sin(theta);
-    //   // final cot = math.cos(theta) / sin;
-    //   // final m = -cot;
-    //   // final b = rho / sin;
-
-    //   // return (Offset(0, b), Offset(1, m * 1 + b));
-    //   // return (-cot, rho / sin);
-    // }).toList();
-    // print(lines.length);
 
     var lines = bins.where((obj) => obj.length > 4).map((bin) {
       var (m, b) = linear.regression(bin.map((obj) => obj.box.center));
@@ -438,30 +331,42 @@ class _DetectionWidget extends State<DetectionWidget> {
       return (Offset(0, b), Offset(1, m * 1 + b));
     }).toList();
 
+    // ignore: dead_code
+    if (drawBins) {
+      for (int i = 0; i < numBins; i++) {
+        final double low = i / numBins;
+        lines.add((
+          Offset(0.0, low),
+          Offset(1.0, low),
+        ));
+      }
+    }
     Paint? Function(mlruntime.DetectedObject object)? repainter;
     if (bins.isNotEmpty) {
-      if (bins.first.length == 1) {
-        final segmentTag = bins.first.first;
+      mlruntime.DetectedObject? segmentTag = findSegmentTag(bins);
+
+      if (segmentTag != null) {
         lines.add((
           Offset(segmentTag.box.center.dx, 0.0),
           Offset(segmentTag.box.center.dx, 1.0),
         ));
+        final mlruntime.DetectedObject segmentTag_ = segmentTag;
         repainter = (mlruntime.DetectedObject object) {
-          if (object == segmentTag) {
+          if (object == segmentTag_) {
             return Paint()..color = Colors.blue;
           }
           if (object.classLabel != "price_tag") return null;
 
-          if (segmentTag.box.center.dx < 0.5) {
+          if (segmentTag_.box.center.dx < 0.5) {
             // Left
-            if (object.box.center.dx > segmentTag.box.center.dx) {
+            if (object.box.center.dx > segmentTag_.box.center.dx) {
               return Paint()..color = Colors.green;
             } else {
               return Paint()..color = Colors.red;
             }
           } else {
             // Right
-            if (object.box.center.dx < segmentTag.box.center.dx) {
+            if (object.box.center.dx < segmentTag_.box.center.dx) {
               return Paint()..color = Colors.green;
             } else {
               return Paint()..color = Colors.red;

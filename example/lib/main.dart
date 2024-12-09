@@ -30,6 +30,7 @@ enum ModelType { detector, detectorShelf, classifier }
 class _MyAppState extends State<MyApp> {
   static const models = [
     ("models/amerch.mlpackage.zip", ModelType.detector),
+    ("models/best_yolo9_negative.mlpackage.zip", ModelType.detector),
     ("models/mobiledet_amerch.mlpackage.zip", ModelType.detector),
     ("models/mobiledet_breakfix.mlpackage.zip", ModelType.detector),
     ("models/mobiledet_blur.mlpackage.zip", ModelType.classifier),
